@@ -1,0 +1,714 @@
+{
+	"info": {
+		"_postman_id": "6ccee568-a2b2-4861-8230-f9369c71fe71",
+		"name": "BookStore",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25949653"
+	},
+	"item": [
+		{
+			"name": "Create User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"\r",
+							"\r",
+							"if(response.userID){\r",
+							"    let userid = response.userID;\r",
+							"\r",
+							"    pm.collectionVariables.set(\"userID\", userid);\r",
+							"} else{\r",
+							"\r",
+							"    console.warn(\"userID NOT FOUND\");\r",
+							"}\r",
+							"\r",
+							"\r",
+							"\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"User ID is returned\", () => {\r",
+							"    pm.expect(response.userID).to.exist\r",
+							"});\r",
+							"\r",
+							"pm.test(\"User Id should not be empty\", () => {\r",
+							"    pm.expect(response.userID).to.not.be.null;\r",
+							"    pm.expect(response.userID).to.not.be.empty;\r",
+							"})\r",
+							"\r",
+							"pm.test(\"New user should not have any book entries\", () => {\r",
+							"    pm.expect(response.books).to.be.empty;\r",
+							"\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"\r",
+							"\r",
+							"let username = pm.variables.replaceIn(`{{$randomFirstName}}_{{$timestamp}}`);\r",
+							"\r",
+							"let password = pm.variables.replaceIn(`,8%Aa{{$randomPassword}}`);\r",
+							"\r",
+							"pm.collectionVariables.set(\"username\", username);\r",
+							"pm.collectionVariables.set(\"password\", password);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userName\": \"{{username}}\",\r\n  \"password\": \"{{password}}\"\r\n}"
+				},
+				"url": {
+					"raw": "{{BaseURL}}/Account/V1/User",
+					"host": [
+						"{{BaseURL}}"
+					],
+					"path": [
+						"Account",
+						"V1",
+						"User"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateToken",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"Generating token\");\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"\r",
+							"let token = response.token;\r",
+							"\r",
+							"pm.collectionVariables.set(\"token\" , token);\r",
+							"\r",
+							"pm.test(\"Status code should be 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})\r",
+							"\r",
+							"pm.test(\"token is given\", () =>{\r",
+							"    pm.expect(response.token).to.exist;\r",
+							"    pm.expect(response.token).to.not.be.empty;\r",
+							"})\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userName\": \"{{username}}\",\r\n  \"password\": \"{{password}}\"\r\n}"
+				},
+				"url": {
+					"raw": "{{BaseURL}}/Account/V1/GenerateToken",
+					"host": [
+						"{{BaseURL}}"
+					],
+					"path": [
+						"Account",
+						"V1",
+						"GenerateToken"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"getUser\", pm.request);\r",
+							"\r",
+							"let response = pm.response.json();\r",
+							" let expected_userID = pm.collectionVariables.get(\"userID\");\r",
+							" let expected_username = pm.collectionVariables.get(\"username\");\r",
+							"\r",
+							" pm.test(\"Status code should be 200\", () => {\r",
+							"     pm.response.to.have.status(200);\r",
+							" })\r",
+							" pm.test(\"Should return the created userID\", () => {\r",
+							"     pm.expect(response.userId).to.equal(expected_userID);\r",
+							" })\r",
+							" pm.test(\"Should return the created username\", () => {\r",
+							"     pm.expect(response.username).to.equal(expected_username);\r",
+							" })\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BaseURL}}/Account/V1/User/{{userID}}",
+					"host": [
+						"{{BaseURL}}"
+					],
+					"path": [
+						"Account",
+						"V1",
+						"User",
+						"{{userID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"\r",
+							"// Sort the books in descending order by publish date\r",
+							"let sortedarray = response.books.sort((a, b) => new Date(b.publish_date) - new Date(a.publish_date)).map(x=> x.isbn);\r",
+							"for(let x = 0; x<4; x++){\r",
+							"   let userbook = sortedarray[x];\r",
+							"   pm.collectionVariables.set(`userbook${x+1}`, userbook);\r",
+							"   \r",
+							"}\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"ISBN entries should not be empty\", () => {\r",
+							"    let isbns = response.books.map(x => x.isbn);\r",
+							"    console.log(isbns);\r",
+							"    isbns.forEach(isbn => {\r",
+							"        console.log(isbn);\r",
+							"        pm.expect(isbn).to.not.be.empty.and.not.be.null;\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{BaseURL}}/Bookstore/V1/Books",
+					"host": [
+						"{{BaseURL}}"
+					],
+					"path": [
+						"Bookstore",
+						"V1",
+						"Books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Book To Collection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"let actualisbn = response.books.map(x => x.isbn);\r",
+							"\r",
+							"pm.test(\"Response should return 3 items\", () => {\r",
+							"    pm.expect(response.books).to.have.length(3);\r",
+							"    pm.expect((response.books).length).to.equal(3);\r",
+							"\r",
+							"})\r",
+							"let expectedisbns = [pm.collectionVariables.get(\"userbook1\"), pm.collectionVariables.get(\"userbook2\"),pm.collectionVariables.get(\"userbook3\")];\r",
+							"\r",
+							"pm.test(\"Should return posted ISBNs\", () => {\r",
+							"    pm.expect(actualisbn).to.have.members(expectedisbns);\r",
+							"})\r",
+							"\r",
+							"let checkUser = () => {\r",
+							"        return new Promise ((resolve, reject) => {\r",
+							"                pm.sendRequest(pm.collectionVariables.get(\"getUser\"),(err, res)=> {\r",
+							"                    if(res){\r",
+							"                        console.log(res);\r",
+							"                        resolve(res);\r",
+							"                    } else {\r",
+							"                        reject(err);\r",
+							"                    }\r",
+							"                });\r",
+							"\r",
+							"    });\r",
+							"};\r",
+							"\r",
+							"checkUser().then((res) => {\r",
+							"    let response = res.json();\r",
+							"    console.log(response);\r",
+							"\r",
+							"   pm.test(\"User has 3 books\"), () =>{\r",
+							"       pm.expect(response.books).to.have.length(3);\r",
+							"   };\r",
+							"   let isbns = response.books.map(x => x.isbn);\r",
+							"    isbns.forEach((isbn, index) => {\r",
+							"        pm.test(`User has the submitted book ${index+1}`), () =>{\r",
+							"        console.log(isbn);\r",
+							"        pm.expect(isbn).to.equal(pm.collectionVariables.get(`userbook${index+1}`));\r",
+							"        };\r",
+							"    }); \r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userId\": \"{{userID}}\",\r\n  \"collectionOfIsbns\": [\r\n    {\r\n    \"isbn\": \"{{userbook1}}\"\r\n\r\n    },\r\n\r\n    {\r\n    \"isbn\": \"{{userbook2}}\"\r\n    },\r\n    {\r\n    \"isbn\": \"{{userbook3}}\"\r\n    }\r\n  ]\r\n}"
+				},
+				"url": {
+					"raw": "{{BaseURL}}/Bookstore/V1/Books",
+					"host": [
+						"{{BaseURL}}"
+					],
+					"path": [
+						"Bookstore",
+						"V1",
+						"Books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"let actualisbn = response.books.map(x => x.isbn)\r",
+							"let expectedisbn = pm.collectionVariables.get(\"userbook4\");\r",
+							"let replacedisbn = pm.collectionVariables.get(\"userbook3\");\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"New ISBN should be there\", () => {\r",
+							"    pm.expect(actualisbn).to.include(expectedisbn);\r",
+							"})\r",
+							"pm.test(\"Old ISBN should not be there\", () => {\r",
+							"    pm.expect(actualisbn).not.to.include(replacedisbn);\r",
+							"})\r",
+							"\r",
+							"let checkUser = () => {\r",
+							"        return new Promise ((resolve, reject) => {\r",
+							"                pm.sendRequest(pm.collectionVariables.get(\"getUser\"),(err, res)=> {\r",
+							"                    if(res){\r",
+							"                        console.log(res);\r",
+							"                        resolve(res);\r",
+							"                    } else {\r",
+							"                        reject(err);\r",
+							"                    }\r",
+							"                });\r",
+							"\r",
+							"    });\r",
+							"};\r",
+							"\r",
+							"checkUser().then((res) => {\r",
+							"    let response = res.json();\r",
+							"    console.log(response);\r",
+							"\r",
+							"   pm.test(\"User has 3 books\"), () =>{\r",
+							"       pm.expect(response.books).to.have.length(3);\r",
+							"   };\r",
+							"   let isbns = response.books.map(x => x.isbn);\r",
+							"    isbns.forEach((isbn, index) => {\r",
+							"        pm.test(`User has the submitted book ${index+1}`), () =>{\r",
+							"        console.log(isbn);\r",
+							"        pm.expect(isbn).to.equal(pm.collectionVariables.get(`userbook${index+1}`));\r",
+							"        };\r",
+							"    }); \r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userId\": \"{{userID}}\",\r\n  \"isbn\": \"{{userbook4}}\"\r\n\r\n}\r\n\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BaseURL}}/Bookstore/V1/Books/{{userbook3}}",
+					"host": [
+						"{{BaseURL}}"
+					],
+					"path": [
+						"Bookstore",
+						"V1",
+						"Books",
+						"{{userbook3}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Book To Collection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"let actualisbn = response.books.map(x => x.isbn);\r",
+							"\r",
+							"pm.test(\"Response should return 3 items\", () => {\r",
+							"    pm.expect(response.books).to.have.length(3);\r",
+							"    pm.expect((response.books).length).to.equal(3);\r",
+							"\r",
+							"})\r",
+							"let expectedisbns = [pm.collectionVariables.get(\"userbook1\"), pm.collectionVariables.get(\"userbook2\"),pm.collectionVariables.get(\"userbook3\")];\r",
+							"\r",
+							"pm.test(\"Should return posted ISBNs\", () => {\r",
+							"    pm.expect(actualisbn).to.have.members(expectedisbns);\r",
+							"})\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userId\": \"{{userID}}\",\r\n  \"collectionOfIsbns\": [\r\n    {\r\n    \"isbn\": \"{{userbook1}}\"\r\n\r\n    },\r\n\r\n    {\r\n    \"isbn\": \"{{userbook2}}\"\r\n    },\r\n    {\r\n    \"isbn\": \"{{userbook3}}\"\r\n    }\r\n  ]\r\n}"
+				},
+				"url": {
+					"raw": "{{BaseURL}}/Bookstore/V1/Books",
+					"host": [
+						"{{BaseURL}}"
+					],
+					"path": [
+						"Bookstore",
+						"V1",
+						"Books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Status code is 204\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});\r",
+							"let checkUser = () => {\r",
+							"        return new Promise ((resolve, reject) => {\r",
+							"                pm.sendRequest(pm.collectionVariables.get(\"getUser\"),(err, res)=> {\r",
+							"                    if(res){\r",
+							"                        console.log(res);\r",
+							"                        resolve(res);\r",
+							"                    } else {\r",
+							"                        reject(err);\r",
+							"                    }\r",
+							"                });\r",
+							"\r",
+							"    });\r",
+							"};\r",
+							"\r",
+							"checkUser().then((res) => {\r",
+							"    let response = res.json();\r",
+							"    console.log(response);\r",
+							"\r",
+							"   pm.test(\"User has 3 books\"), () =>{\r",
+							"       pm.expect(response.books).to.have.length(3);\r",
+							"   };\r",
+							"   let isbns = response.books.map(x => x.isbn);\r",
+							"   \r",
+							"        pm.test(`User has deleted the book ${userbook3}`), () =>{\r",
+							"        console.log(isbn);\r",
+							"        pm.expect(isbns).to.not.include(pm.collectionVariables.get(\"userbook3\"));\r",
+							"        };\r",
+							" \r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"isbn\": \"{{userbook3}}\",\r\n  \"userId\": \"{{userID}}\"\r\n}"
+				},
+				"url": {
+					"raw": "{{BaseURL}}/Bookstore/V1/Book",
+					"host": [
+						"{{BaseURL}}"
+					],
+					"path": [
+						"Bookstore",
+						"V1",
+						"Book"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{BaseURL}}/Account/v1/User/{{userID}}",
+					"host": [
+						"{{BaseURL}}"
+					],
+					"path": [
+						"Account",
+						"v1",
+						"User",
+						"{{userID}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "username",
+			"value": ""
+		},
+		{
+			"key": "password",
+			"value": ""
+		},
+		{
+			"key": "userID",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "userbook1",
+			"value": ""
+		},
+		{
+			"key": "userbook2",
+			"value": ""
+		},
+		{
+			"key": "userbook3",
+			"value": ""
+		},
+		{
+			"key": "userbook4",
+			"value": ""
+		},
+		{
+			"key": "getUser",
+			"value": ""
+		}
+	]
+}
