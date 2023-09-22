@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "newman": "^6.0.0"
+    "newman": "^5.1.2",
+    "newman-reporter-htmlextra": "1.22.11"
+  },
+  "scripts": {
+    "test:api": "newman run BookStoreApi.json --env-var \"BaseURL=https://bookstore.toolsqa.com\" -r cli,htmlextra"
   }
 }

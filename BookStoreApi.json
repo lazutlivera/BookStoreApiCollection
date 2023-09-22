@@ -572,10 +572,10 @@
 							"   };\r",
 							"   let isbns = response.books.map(x => x.isbn);\r",
 							"   \r",
-							"        pm.test(`User has deleted the book ${userbook3}`), () =>{\r",
+							"    pm.test(`User has deleted the book userbook3`), () =>{\r",
 							"        console.log(isbn);\r",
 							"        pm.expect(isbns).to.not.include(pm.collectionVariables.get(\"userbook3\"));\r",
-							"        };\r",
+							"    };\r",
 							" \r",
 							"});\r",
 							"\r",
@@ -671,6 +671,26 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	],
 	"variable": [
