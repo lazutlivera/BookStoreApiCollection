@@ -1,0 +1,14 @@
+name: Run Collection
+
+on:
+  push:
+    branch: main
+  workflow-dispatch:
+
+jobs:
+  build:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout
+    - uses: actions/checkout@v4
+    
